@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login Admin - Ranking da Sala</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #f0f0ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: #11111a;
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid #bf5fff;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #bf5fff;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, #bf5fff, #ff3cac);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            background: rgba(255, 60, 172, 0.2);
+            border: 1px solid #ff3cac;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            color: #ff8fcc;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #8f90a6;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #bf5fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>🔐 Acesso Administrativo</h1>
+        
+        {% if erro %}
+        <div class="error">
+            ❌ Senha incorreta! Tente novamente.
+        </div>
+        {% endif %}
+        
+        <form method="POST">
+            <input type="password" name="senha" placeholder="Digite a senha do administrador" required autofocus>
+            <button type="submit">Entrar</button>
+        </form>
+        
+        <a href="/" class="back-link">← Voltar para o site</a>
+    </div>
+</body>
+</html>

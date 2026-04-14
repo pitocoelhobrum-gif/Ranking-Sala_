@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Admin - Ranking da Sala</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #f0f0ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #bf5fff;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            color: #00d4ff;
+            margin: 2rem 0 1rem;
+        }
+
+        .warning {
+            background: rgba(255, 60, 172, 0.15);
+            border: 1px solid #ff3cac;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #bf5fff;
+            min-width: 180px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #39ff14;
+        }
+
+        .stat-label {
+            color: #8f90a6;
+            margin-top: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #11111a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border-bottom: 1px solid #2a2b3c;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        th {
+            background: #1a1a2e;
+            color: #39ff14;
+        }
+
+        .senha-col {
+            color: #ff3cac;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.7rem 1.2rem;
+            background: #bf5fff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn:hover {
+            background: #9a3fdf;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: #666;
+            padding: 1rem;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 2rem;
+            color: #8f90a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="btn">← Voltar para o Site</a>
+
+        <h1>👑 Painel Administrativo</h1>
+
+        <div class="warning">
+            ⚠️ ATENÇÃO: Esta página mostra TODAS as senhas dos usuários em TEXTO PURO!
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_usuarios }}</div>
+                <div class="stat-label">📊 Total de Usuários</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_rankings }}</div>
+                <div class="stat-label">📝 Total de Rankings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_votos }}</div>
+                <div class="stat-label">🗳️ Total de Votos</div>
+            </div>
+        </div>
+
+        <h2>📋 Lista de Usuários e SENHAS</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>🔑 SENHA</th>
+                    <th>Nome</th>
+                    <th>Data de Criação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if usuarios %}
+                    {% for user in usuarios %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.email }}</td>
+                        <td class="senha-col">{{ user.senha }}</td>
+                        <td>{{ user.nome_usuario or '-' }}</td>
+                        <td>{{ user.data_criacao }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-row">Nenhum usuário cadastrado ainda.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <footer>
+            <p>🔐 Senhas armazenadas em TEXTO PURO - Acesso restrito ao administrador</p>
+        </footer>
+    </div>
+</body>
+</html>

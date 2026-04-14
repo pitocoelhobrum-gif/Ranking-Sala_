@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ranking da Sala - crie rankings, vote e acompanhe a movimentação da turma.">
+    <title>🔥 Ranking da Sala</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-purple: #bf5fff;
+            --neon-pink: #ff3cac;
+            --neon-blue: #00d4ff;
+            --neon-green: #39ff14;
+            --bg: #0a0a0f;
+            --bg2: #11111a;
+            --text: #f0f0ff;
+            --muted: #8f90a6;
+            --border: rgba(191, 95, 255, 0.18);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.5;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.7rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: 1px solid var(--neon-purple);
+            background: transparent;
+            color: var(--neon-purple);
+        }
+
+        .btn:hover,
+        .btn:focus-visible {
+            transform: translateY(-1px);
+            box-shadow: 0 0 0 3px rgba(191, 95, 255, 0.18);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            border: none;
+        }
+
+        .btn[disabled] {
+            opacity: 0.65;
+            cursor: wait;
+            transform: none;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 7rem 2rem 3rem;
+        }
+
+        h1 {
+            font-size: clamp(2.7rem, 7vw, 4.5rem);
+            background: linear-gradient(135deg, #fff, var(--neon-purple), var(--neon-pink));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 1rem 0;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.15rem;
+            max-width: 700px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat {
+            min-width: 140px;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+
+        section {
+            padding: 1rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .card:hover,
+        .card:focus-visible {
+            transform: translateY(-5px);
+            border-color: var(--neon-purple);
+            outline: none;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.28);
+        }
+
+        .card-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-votes {
+            margin: 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .card-meta {
+            margin-top: 0.5rem;
+            color: var(--muted);
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--bg2);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.85rem;
+            margin: 0.5rem 0;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 0 3px rgba(191, 95, 255, 0.15);
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 0.85rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #888;
+            background: none;
+            border: none;
+        }
+
+        .close:hover,
+        .close:focus-visible {
+            color: white;
+            outline: none;
+        }
+
+        .alert {
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            display: none;
+            word-break: break-word;
+        }
+
+        .alert-success {
+            background: rgba(57, 255, 20, 0.15);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .alert-error {
+            background: rgba(255, 60, 172, 0.15);
+            border: 1px solid var(--neon-pink);
+            color: #ff8fcc;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .user-email {
+            color: var(--neon-purple);
+            font-size: 0.95rem;
+        }
+
+        .muted-link {
+            color: var(--neon-purple);
+        }
+
+        @media (max-width: 720px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-actions,
+            .user-info {
+                justify-content: center;
+            }
+
+            .hero {
+                padding-top: 8.5rem;
+            }
+
+            section {
+                padding-inline: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">⚡ RANKING DA SALA</div>
+        <div class="nav-actions">
+            {% if session.get('user') %}
+                <div class="user-info">
+                    <span class="user-email">👤 {{ session.get('user', {}).get('email', '') }}</span>
+                    <a href="/logout" class="btn">Sair</a>
+                </div>
+            {% else %}
+                <button class="btn" type="button" onclick="openModal('login')">Entrar</button>
+                <button class="btn btn-primary" type="button" onclick="openModal('register')">Criar Conta</button>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>🔥 RANKING DA SALA</h1>
+        <p>Descubra o que a galera realmente pensa 😈</p>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div>Usuários</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalRankings">0</div>
+                <div>Rankings</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalVotes">0</div>
+                <div>Votos</div>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <h2>🔥 Rankings em Alta</h2>
+        <div class="cards" id="rankingsList" aria-live="polite"></div>
+    </section>
+
+    <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('loginModal')" aria-label="Fechar modal">&times;</button>
+            <h2 id="loginTitle">Entrar</h2>
+            <div id="loginAlert" class="alert"></div>
+            <input type="email" id="loginEmail" placeholder="Seu email" autocomplete="email" required>
+            <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" required>
+            <button id="loginButton" type="button" onclick="login()">Entrar</button>
+            <p style="margin-top: 1rem; text-align: center; color: var(--muted);">
+                Não tem conta?
+                <a href="#" class="muted-link" onclick="switchModal(event, 'register')">Criar Conta</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+        <div class="modal-content">
+            <button class="close" type="button" onclick="closeModal('registerModal')" aria-label="Fechar modal">&times;</button>
+            <h2 id="registerTitle">Criar Conta</h2>
+            <div id="registerAlert" class="alert"></div>
+            <input type="email" id="regEmail" placeholder="Seu email" autocomplete="email" required>
+            <input type="text" id="regName" placeholder="Seu nome (opcional)" autocomplete="name">
+            <input type="password" id="regPassword" placeholder="Senha" autocomplete="new-password" minlength="6" required>
+            <input type="password" id="regConfirm" placeholder="Confirmar senha" autocomplete="new-password" minlength="6" required>
+            <button id="registerButton" type="button" onclick="register()">Criar Conta</button>
+            <p style="margin-top: 1rem; text-align: center; color: var(--muted);">
+                Já tem conta?
+                <a href="#" class="muted-link" onclick="switchModal(event, 'login')">Entrar</a>
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p>⚡ Ranking da Sala - feito com 🔥 pra sua turma</p>
+    </footer>
+
+    <script>
+        const rankingsList = document.getElementById('rankingsList');
+
+        function setButtonLoading(buttonId, loading, loadingText, defaultText) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+            button.disabled = loading;
+            button.textContent = loading ? loadingText : defaultText;
+        }
+
+        function showAlert(id, message, type) {
+            const alertBox = document.getElementById(id);
+            if (!alertBox) return;
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type}`;
+            alertBox.style.display = 'block';
+
+            if (type === 'alert-success' || type === 'alert-error') {
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 3500);
+            }
+        }
+
+        function hideAlert(id) {
+            const alertBox = document.getElementById(id);
+            if (!alertBox) return;
+            alertBox.style.display = 'none';
+            alertBox.textContent = '';
+            alertBox.className = 'alert';
+        }
+
+        function openModal(type) {
+            hideAlert('loginAlert');
+            hideAlert('registerAlert');
+            const modalId = type === 'login' ? 'loginModal' : 'registerModal';
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        function switchModal(event, to) {
+            if (event) event.preventDefault();
+            closeModal('loginModal');
+            closeModal('registerModal');
+            openModal(to);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[char]));
+        }
+
+        function showRankingDetails(ranking) {
+            const titulo = ranking?.titulo ?? 'Sem título';
+            const votos = Number(ranking?.votos ?? 0);
+            const participantes = Number(ranking?.participantes ?? 0);
+            window.alert(`Ranking: ${titulo}\nVotos: ${votos}\nParticipantes: ${participantes}`);
+        }
+
+        function createRankingCard(ranking) {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'card';
+            card.addEventListener('click', () => showRankingDetails(ranking));
+
+            const emoji = document.createElement('div');
+            emoji.className = 'card-emoji';
+            emoji.textContent = ranking?.emoji || '📊';
+
+            const votes = document.createElement('div');
+            votes.className = 'card-votes';
+            const totalVotes = Number(ranking?.votos ?? 0);
+            votes.style.color = totalVotes > 1000 ? '#ff3cac' : '#888';
+            votes.textContent = `🔥 ${totalVotes} votos`;
+
+            const title = document.createElement('div');
+            title.className = 'card-title';
+            title.textContent = ranking?.titulo || 'Sem título';
+
+            const meta = document.createElement('div');
+            meta.className = 'card-meta';
+            meta.textContent = `👥 ${Number(ranking?.participantes ?? 0)} participantes`;
+
+            card.appendChild(emoji);
+            card.appendChild(votes);
+            card.appendChild(title);
+            card.appendChild(meta);
+
+            return card;
+        }
+
+        async function fetchJson(url, options = {}) {
+            const response = await fetch(url, options);
+            let data = null;
+
+            try {
+                data = await response.json();
+            } catch (error) {
+                if (!response.ok) {
+                    throw new Error('A resposta do servidor veio inválida.');
+                }
+            }
+
+            if (!response.ok) {
+                throw new Error(data?.message || 'Não foi possível concluir a operação.');
+            }
+
+            return data;
+        }
+
+        async function loadStats() {
+            try {
+                const data = await fetchJson('/api/stats');
+                document.getElementById('totalUsers').textContent = Number(data?.total_users ?? 0);
+                document.getElementById('totalRankings').textContent = Number(data?.total_rankings ?? 0);
+                document.getElementById('totalVotes').textContent = Number(data?.total_votes ?? 0);
+            } catch (error) {
+                document.getElementById('totalUsers').textContent = '-';
+                document.getElementById('totalRankings').textContent = '-';
+                document.getElementById('totalVotes').textContent = '-';
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        async function loadRankings() {
+            rankingsList.innerHTML = '<div class="empty-state">Carregando rankings...</div>';
+
+            try {
+                const rankings = await fetchJson('/api/rankings');
+                rankingsList.innerHTML = '';
+
+                if (!Array.isArray(rankings) || rankings.length === 0) {
+                    rankingsList.innerHTML = '<div class="empty-state">Nenhum ranking disponível no momento.</div>';
+                    return;
+                }
+
+                rankings.forEach((ranking) => rankingsList.appendChild(createRankingCard(ranking)));
+            } catch (error) {
+                rankingsList.innerHTML = `<div class="empty-state">${escapeHtml(error.message || 'Erro ao carregar rankings.')}</div>`;
+                console.error('Erro ao carregar rankings:', error);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAlert('loginAlert', 'Preencha email e senha para entrar.', 'alert-error');
+                return;
+            }
+
+            setButtonLoading('loginButton', true, 'Entrando...', 'Entrar');
+            hideAlert('loginAlert');
+
+            try {
+                const data = await fetchJson('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (data?.success) {
+                    location.reload();
+                    return;
+                }
+
+                throw new Error(data?.message || 'Não foi possível fazer login.');
+            } catch (error) {
+                showAlert('loginAlert', error.message, 'alert-error');
+            } finally {
+                setButtonLoading('loginButton', false, 'Entrando...', 'Entrar');
+            }
+        }
+
+        async function register() {
+            const email = document.getElementById('regEmail').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+
+            if (!email || !password || !confirm) {
+                showAlert('registerAlert', 'Preencha email e senha para criar sua conta.', 'alert-error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('registerAlert', 'A senha precisa ter pelo menos 6 caracteres.', 'alert-error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showAlert('registerAlert', 'As senhas não coincidem.', 'alert-error');
+                return;
+            }
+
+            setButtonLoading('registerButton', true, 'Criando conta...', 'Criar Conta');
+            hideAlert('registerAlert');
+
+            try {
+                const data = await fetchJson('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name, password })
+                });
+
+                if (!data?.success) {
+                    throw new Error(data?.message || 'Não foi possível criar a conta.');
+                }
+
+                showAlert('registerAlert', 'Conta criada com sucesso! Faça login.', 'alert-success');
+                setTimeout(() => {
+                    closeModal('registerModal');
+                    openModal('login');
+                }, 1500);
+            } catch (error) {
+                showAlert('registerAlert', error.message, 'alert-error');
+            } finally {
+                setButtonLoading('registerButton', false, 'Criando conta...', 'Criar Conta');
+            }
+        }
+
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeModal('loginModal');
+                closeModal('registerModal');
+            }
+        });
+
+        loadStats();
+        loadRankings();
+    </script>
+</body>
+</html>
